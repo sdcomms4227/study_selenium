@@ -30,7 +30,7 @@ NAVER_PW=your_naver_password
 ```
 
 4. Chrome WebDriver 설치
-- [Chrome WebDriver](https://sites.google.com/chromium.org/driver/)를 다운로드하여 프로젝트 루트 디렉토리에 설치하세요.
+- [Chrome WebDriver](https://googlechromelabs.github.io/chrome-for-testing/)를 다운로드하여 프로젝트 루트 디렉토리에 설치하세요.
 
 ## 실행 방법
 
