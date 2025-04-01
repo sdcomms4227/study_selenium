@@ -1,17 +1,25 @@
 {
-  "name": "naver-map-scraper",
+  "name": "study_selenium",
   "version": "1.0.0",
-  "description": "Naver Map Scraper for libraries and swimming pools",
+  "description": "네이버 지도 북마크 자동화 스크립트",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "library": "node src/scripts/library/library.js",
+    "pool": "node src/scripts/pool/pool.js",
+    "party": "node src/scripts/party/party.js"
   },
-  "keywords": [],
+  "keywords": [
+    "selenium",
+    "automation",
+    "naver",
+    "map",
+    "bookmark"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "selenium-webdriver": "^4.18.1"
+    "dotenv": "^16.0.3",
+    "selenium-webdriver": "^4.8.1"
   }
 }

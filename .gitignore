@@ -1,20 +1,16 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Environment variables
 .env
 
-# IDE files
-.vscode/
-.idea/
-
 # Logs
 *.log
 
-# Chrome driver
-chromedriver.exe
+# IDE
+.vscode/
+.idea/
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db 

@@ -3,8 +3,8 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
 const { getChromeOptions, login, handleBookmark } = require('../../utils/utils');
 
 // Define constants
-const SEARCH_KEYWORD = "부산광역시 도서관";
-const FILTER_KEYWORDS = ['도서관'];
+const SEARCH_KEYWORD = "부산광역시 파티룸";
+const FILTER_KEYWORDS = ['장소대여'];
 
 const run = async () => {
     const driver = await new Builder()
@@ -19,7 +19,7 @@ const run = async () => {
         // Login to Naver
         await login(driver);
         console.log('네이버 로그인 완료');
-        
+       
         console.log('Starting map search process...');
         
         // 특정 URL 생성
@@ -151,13 +151,13 @@ const run = async () => {
                         // Wait for 1 second between iterations
                         await driver.sleep(1000);
                         
-                        // Only process items containing '도서관'
+                        // Only process items containing '파티룸'
                         if (FILTER_KEYWORDS.some(keyword => titleText2.includes(keyword))) {
-                            console.log(`Processing library item ${i + 1}:`, titleText1);
+                            console.log(`Processing party room item ${i + 1}:`, titleText1);
                             
                             // Find and click the div element
                             await element.findElement(By.css('div.place_bluelink')).click();
-                            console.log('Clicked on library item');
+                            console.log('Clicked on party room item');
                             
                             // Wait for 1 second between iterations
                             await driver.sleep(1000);
@@ -272,4 +272,4 @@ const run = async () => {
         driver.quit();
     }
 }
-run();
+run(); 

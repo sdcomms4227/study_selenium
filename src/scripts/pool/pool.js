@@ -4,15 +4,10 @@ const { getChromeOptions, login, handleBookmark } = require('../../utils/utils')
 
 // Define constants
 const SEARCH_KEYWORD = "부산광역시 수영장";
-
-// Check for required environment variables
-if (!process.env.NAVER_ID || !process.env.NAVER_PW) {
-    console.error('Please set NAVER_ID and NAVER_PW in .env file');
-    process.exit(1);
-}
+const FILTER_KEYWORDS = ['수영장'];
 
 const run = async () => {
-    let driver = await new Builder()
+    const driver = await new Builder()
         .forBrowser('chrome')
         .setChromeOptions(getChromeOptions())
         .build();
@@ -22,7 +17,8 @@ const run = async () => {
         await driver.manage().window().setRect({ width: 1920, height: 1080 });
         
         // Login to Naver
-        await login(driver, process.env.NAVER_ID, process.env.NAVER_PW);
+        await login(driver);
+        console.log('네이버 로그인 완료');
        
         console.log('Starting map search process...');
         
@@ -54,7 +50,6 @@ const run = async () => {
         await driver.wait(until.elementLocated(By.css('#_pcmap_list_scroll_container')), 10000);
         
         let processedItems = new Set(); // Keep track of processed items
-        let groupExists = false; // Global variable to track if group exists
         let hasMoreItems = true;
         let currentPage = 1;
 
@@ -72,7 +67,7 @@ const run = async () => {
                         .build();
                     
                     // Re-login
-                    await login(driver, process.env.NAVER_ID, process.env.NAVER_PW);
+                    await login(driver);
                     
                     // Return to map page
                     await driver.get('https://map.naver.com/');
@@ -157,7 +152,7 @@ const run = async () => {
                         await driver.sleep(1000);
                         
                         // Only process items containing '수영장' or '스포츠센터'
-                        if (titleText2.includes('수영장') || titleText2.includes('스포츠센터')) {
+                        if (FILTER_KEYWORDS.some(keyword => titleText2.includes(keyword))) {
                             console.log(`Processing pool/sports center item ${i + 1}:`, titleText1);
                             
                             // Find and click the div element
@@ -180,8 +175,7 @@ const run = async () => {
                             
                             // Get detailed information
                             try {
-                                // Handle bookmark using common function
-                                groupExists = await handleBookmark(driver, SEARCH_KEYWORD, groupExists);
+                                await handleBookmark(driver, SEARCH_KEYWORD);
                             } catch (detailErr) {
                                 console.log('Error getting details:', detailErr.message);
                             }
@@ -206,7 +200,6 @@ const run = async () => {
                 // Check pagination navigation
                 const paginationContainer = await driver.findElement(By.css('div.zRM9F'));
                 const nextPageButton = await paginationContainer.findElement(By.css('a.eUTV2:last-child'));
-                const prevPageButton = await paginationContainer.findElement(By.css('a.eUTV2:first-child'));
                 
                 // Get all page numbers
                 const pageNumbers = await paginationContainer.findElements(By.css('a.mBN2s'));
@@ -241,7 +234,7 @@ const run = async () => {
                             .build();
                         
                         // Re-login
-                        await login(driver, process.env.NAVER_ID, process.env.NAVER_PW);
+                        await login(driver);
                         
                         // Return to map page
                         await driver.get('https://map.naver.com/');
