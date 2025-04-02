@@ -1,0 +1,50 @@
+{
+  "rules": [
+    {
+      "pattern": "src/**/*.js",
+      "exclude": ["node_modules/**"],
+      "language": "javascript",
+      "autoformat": true,
+      "lint": true
+    },
+    {
+      "pattern": "*.html",
+      "language": "html",
+      "autoformat": true
+    },
+    {
+      "pattern": "*.md",
+      "language": "markdown",
+      "autoformat": true
+    },
+    {
+      "pattern": "*.json",
+      "language": "json",
+      "autoformat": true
+    },
+    {
+      "pattern": ".env",
+      "language": "plaintext",
+      "autoformat": false
+    }
+  ],
+  "formatting": {
+    "javascript": {
+      "indentSize": 2,
+      "maxLineLength": 100,
+      "semi": true,
+      "singleQuote": true,
+      "trailingComma": "es5"
+    }
+  },
+  "linting": {
+    "javascript": {
+      "eslint": true,
+      "rules": {
+        "no-console": "warn",
+        "no-unused-vars": "warn",
+        "prefer-const": "error"
+      }
+    }
+  }
+} 

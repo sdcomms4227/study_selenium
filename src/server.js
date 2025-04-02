@@ -17,51 +17,42 @@ app.use(express.static('./'));
 // Endpoint to run scripts
 app.get('/run/:scriptName/:mode', (req, res) => {
     const { scriptName, mode } = req.params;
-    
+    const { keyword, filters } = req.query;
+    const scriptPath = path.join(__dirname, 'scripts', scriptName, `${scriptName}.js`);
+
+    // 이미 실행 중인 스크립트가 있는지 확인
     if (activeScripts.has(scriptName)) {
-        res.status(400).json({ error: '이미 실행 중인 스크립트입니다.' });
+        res.write(`data: ${JSON.stringify({ type: 'error', message: '이미 실행 중인 스크립트입니다.' })}\n\n`);
+        res.end();
         return;
     }
 
-    // SSE 헤더 설정
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*'
-    });
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
-    const scriptPath = path.join(__dirname, 'scripts', scriptName, `${scriptName}.js`);
-    const scriptOptions = mode === 'background' ? { detached: true } : {};
-    
-    // 포어그라운드/백그라운드 모드에 따라 환경 변수 설정
-    const env = {
-        ...process.env,
-        CHROME_MODE: mode // 'foreground' 또는 'background'
-    };
+    // 스크립트 실행 인자 구성
+    const args = [scriptPath];
+    if (scriptName === 'search') {
+        if (keyword) {
+            args.push(`keyword=${keyword}`);
+        }
+        if (filters) {
+            args.push(`filters=${filters}`);
+        }
+    }
 
-    const script = spawn('node', [scriptPath], { ...scriptOptions, env });
-
+    console.log('스크립트 실행 인자:', args);
+    const script = spawn('node', args);
     activeScripts.set(scriptName, script);
     currentScript = scriptName;
 
-    // 초기 연결 확인 메시지 전송
-    res.write(`data: ${JSON.stringify({ type: 'log', message: '스크립트 실행 시작' })}\n\n`);
-
     script.stdout.on('data', (data) => {
-        const message = data.toString().trim();
-        if (message) {
-            // 모든 stdout 출력을 로그로 전송
-            res.write(`data: ${JSON.stringify({ type: 'log', message: message })}\n\n`);
-        }
+        res.write(`data: ${JSON.stringify({ type: 'log', message: data.toString() })}\n\n`);
     });
 
     script.stderr.on('data', (data) => {
-        const message = data.toString().trim();
-        if (message) {
-            // stderr 출력도 로그로 전송
-            res.write(`data: ${JSON.stringify({ type: 'log', message: message })}\n\n`);
-        }
+        res.write(`data: ${JSON.stringify({ type: 'error', message: data.toString() })}\n\n`);
     });
 
     script.on('close', (code) => {
@@ -75,7 +66,7 @@ app.get('/run/:scriptName/:mode', (req, res) => {
 
     // Handle client disconnect
     req.on('close', () => {
-        if (activeScripts.has(scriptName) && mode !== 'background') {
+        if (activeScripts.has(scriptName)) {
             const script = activeScripts.get(scriptName);
             script.kill();
             activeScripts.delete(scriptName);
